@@ -1,0 +1,13 @@
+jupyterlab
+ipykernel
+
+pandas
+numpy
+
+matplotlib
+seaborn
+
+sqlalchemy
+psycopg2-binary
+
+openpyxl
