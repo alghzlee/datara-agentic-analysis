@@ -15,10 +15,11 @@ import duckdb
 ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = ROOT / "olist.duckdb"
 
-MAX_ROWS = 200
+MAX_ROWS = 50
 TIMEOUT_SECONDS = 20
 
-VIEWS = ["order_items_enriched", "orders_clean", "payments_clean", "geo_per_zip"]
+VIEWS = ["order_items_enriched", "orders_clean",
+         "payments_clean", "geo_per_zip"]
 RAW_TABLES = [
     "customers", "geolocation", "order_items", "order_payments", "order_reviews",
     "orders", "products", "sellers", "product_category_name_translation",
@@ -67,14 +68,18 @@ def validate_sql(sql: str) -> str:
     if not lowered:
         raise ValueError("Query kosong.")
     if ";" in cleaned:
-        raise ValueError("Hanya satu statement yang diizinkan (hapus tanda titik koma di tengah query).")
+        raise ValueError(
+            "Hanya satu statement yang diizinkan (hapus tanda titik koma di tengah query).")
     if not re.match(r"(select|with)\b", lowered):
-        raise ValueError("Query harus diawali SELECT atau WITH. Hanya query baca yang diizinkan.")
+        raise ValueError(
+            "Query harus diawali SELECT atau WITH. Hanya query baca yang diizinkan.")
     for word in FORBIDDEN_WORDS:
         if re.search(rf"\b{word}\b", lowered):
-            raise ValueError(f"Kata '{word}' tidak diizinkan. Hanya query baca (SELECT) yang boleh dijalankan.")
+            raise ValueError(
+                f"Kata '{word}' tidak diizinkan. Hanya query baca (SELECT) yang boleh dijalankan.")
     if re.search(r"\b(read_\w+|glob)\s*\(", lowered):
-        raise ValueError("Membaca file tidak diizinkan. Gunakan view yang tersedia.")
+        raise ValueError(
+            "Membaca file tidak diizinkan. Gunakan view yang tersedia.")
     for table in RAW_TABLES:
         if re.search(rf"\b{table}\b", lowered):
             raise ValueError(
@@ -87,7 +92,8 @@ def format_rows(columns, rows, truncated):
     lines = [" | ".join(columns)]
     for row in rows:
         lines.append(" | ".join("NULL" if v is None else str(v) for v in row))
-    lines.append(f"({len(rows)} baris{', DIPOTONG di batas ' + str(MAX_ROWS) + ' baris; agregasi lebih lanjut di SQL' if truncated else ''})")
+    lines.append(
+        f"({len(rows)} baris{', DIPOTONG di batas ' + str(MAX_ROWS) + ' baris; agregasi lebih lanjut di SQL' if truncated else ''})")
     return "\n".join(lines)
 
 
